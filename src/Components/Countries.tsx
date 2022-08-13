@@ -12,6 +12,13 @@ import Temperture from "./Temperture";
 interface Props {
   countries: any[];
 }
+
+interface WeatherData {
+
+}
+
+
+
 const Countries: React.FC<Props> = ({ countries }) => {
   const [weatherData, setWeatherData] = React.useState<any>();
   const [capitalName, setcapitalName] = React.useState();
@@ -45,7 +52,7 @@ const Countries: React.FC<Props> = ({ countries }) => {
                   component="img"
                   height="140"
                   image={flag}
-                  alt="green iguana"
+                  alt={name}
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
