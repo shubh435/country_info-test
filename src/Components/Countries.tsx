@@ -8,9 +8,11 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { useLocation } from "react-router-dom";
+import { CountriesType } from "../interfaces";
 import Temperture from "./Temperture";
 interface Props {
-  countries: any[];
+  countries?: CountriesType[];
 }
 
 interface WeatherData {
@@ -22,6 +24,9 @@ interface WeatherData {
 const Countries: React.FC<Props> = ({ countries }) => {
   const [weatherData, setWeatherData] = React.useState<any>();
   const [capitalName, setcapitalName] = React.useState();
+
+  const location = useLocation()
+  console.log({location})
   const handleWeatherOfCapital = (capitalName: any) => {
     setcapitalName(capitalName);
     fetch(
@@ -31,6 +36,7 @@ const Countries: React.FC<Props> = ({ countries }) => {
       .then((data: any) => {
         setWeatherData(data.current);
         console.log(data, weatherData);
+        
       });
   };
 
@@ -44,8 +50,8 @@ const Countries: React.FC<Props> = ({ countries }) => {
         }}
       >
         {countries &&
-          countries.map((country, i: number) => {
-            const { name, capital, population, latlng, flag } = country;
+          countries.map((country:CountriesType, i: number) => {
+            const { name, capital, population, latlng,flag } = country;
             return (
               <Card sx={{ width: "20rem" }} key={i}>
                 <CardMedia
@@ -59,7 +65,7 @@ const Countries: React.FC<Props> = ({ countries }) => {
                     {name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Capitl = {capital}
+                    Capital = {capital}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Population = {population}
@@ -68,8 +74,18 @@ const Countries: React.FC<Props> = ({ countries }) => {
                     latlng = {JSON.stringify(latlng)}
                   </Typography>
 
-                  {weatherData && capitalName === capital && (
-                    <>
+                 
+                </CardContent>
+
+                <CardActions
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                   {weatherData && capitalName === capital ? (
+                    <Box sx={{display:"grid" , justifyContent:"center", gap:"10px", alignItems:"center"}}>
                       <Typography gutterBottom variant="h5" component="div">
                         temperature = {weatherData.temperature}
                       </Typography>
@@ -94,23 +110,16 @@ const Countries: React.FC<Props> = ({ countries }) => {
                       <Typography variant="body2" color="text.secondary">
                         precip = {weatherData.precip}
                       </Typography>
-                    </>
-                  )}
-                </CardContent>
-
-                <CardActions
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+                    </Box>
+                  ):<>
                   <Button
                     color="success"
                     onClick={() => handleWeatherOfCapital(capital)}
                   >
                     Capital Weather
                   </Button>
+                  
+                  </>}
                 </CardActions>
               </Card>
             );

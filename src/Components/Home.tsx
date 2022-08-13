@@ -3,12 +3,16 @@ import { TextField, Button, CircularProgress, Box } from "@mui/material";
 import Countries from "./Countries";
 import { Container } from "@mui/system";
 import axios from "axios";
+import { CountriesType } from "../interfaces";
+import { useNavigate } from "react-router-dom";
+
 const Home: React.FC = () => {
   const [country, setCountry] = React.useState<string>("");
-  const [hasDisabled, setHasDisabled] = React.useState(true);
-  const [countries, setCountries] = React.useState<any[]>([]);
+  const [hasDisabled, setHasDisabled] = React.useState<boolean>(true);
+  const [countries, setCountries] = React.useState<CountriesType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<any>(null);
+  const [error, setError] = React.useState<string>('');
+  const navigate = useNavigate()
   const handleCountryChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -22,16 +26,21 @@ const Home: React.FC = () => {
       .then((res) => {
         //   console.log(res.json());
         if (res.status=== 200) {
-          setError(null);
+          setError('');
           return res.json();
         } else {
           setError("Not Found");
           setLoading(false);
+          return ;
         }
       })
-      .then((data) => {
+      .then((data:CountriesType[]) => {
+      console.log(data);
         setCountries(data);
+        navigate("/countries",{state:data})
+      
       });
+
     setLoading(false);
   };
   React.useEffect(() => {
@@ -44,6 +53,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="App">
+
       <form
         onSubmit={handleSubmit}
         style={{
@@ -61,7 +71,7 @@ const Home: React.FC = () => {
           value={country}
           onChange={handleCountryChange}
         />
-
+      
         <Button
           type="submit"
           variant="contained"
@@ -72,7 +82,7 @@ const Home: React.FC = () => {
         </Button>
       </form>
       {error && <p>{JSON.stringify(error)}</p>}
-      {loading ? (
+      {/* {loading ? (
         <Box sx={{ textAlign: "center" }}>
           <CircularProgress />
         </Box>
@@ -80,7 +90,7 @@ const Home: React.FC = () => {
         <Container sx={{ m: "10% auto auto  auto" }}>
           <Countries countries={countries} />
         </Container>
-      )}
+      )} */}
     </div>
   );
 };
