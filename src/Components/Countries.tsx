@@ -7,41 +7,54 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import React from "react";
+import { Container } from "@mui/system";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { CountriesType } from "../interfaces";
 import Temperture from "./Temperture";
-interface Props {
-  countries?: CountriesType[];
-}
+import ErrorBoundary from '../Errors/ErrorBoundary'
+// interface Props {
+//   countries?: CountriesType[];
+// }
 
 interface WeatherData {
+ current: {temperature:number,wind_speed:number,precip:number,weather_icons:[]},
+ location:{
+  name:string
+ },
 
+ 
 }
 
+interface LocationType{
 
+  state: CountriesType[];
+ 
+}
 
-const Countries: React.FC<Props> = ({ countries }) => {
-  const [weatherData, setWeatherData] = React.useState<any>();
-  const [capitalName, setcapitalName] = React.useState();
-
+const Countries: React.FC= () => {
+  const [weatherData, setWeatherData] = React.useState<WeatherData[]>([]);
+  const [capitalNames, setcapitalName] = React.useState<string[]>([]);
   const location = useLocation()
-  console.log({location})
-  const handleWeatherOfCapital = (capitalName: any) => {
-    setcapitalName(capitalName);
+
+  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false)
+  const {state} = location as LocationType
+  const handleWeatherOfCapital = (capitalName: string) => {
+    setcapitalName([...capitalNames,capitalName]);
     fetch(
       `http://api.weatherstack.com/current?access_key=c02a783b96602e7e7f017644d7c704c2&query=${capitalName}`
     )
       .then((res) => res.json())
-      .then((data: any) => {
-        setWeatherData(data.current);
+      .then((data:WeatherData) => {
+        setIsButtonVisible(true)
+        // const data = {...data.current,{capitalName:capitalName}}
+        setWeatherData([...weatherData,data]);
         console.log(data, weatherData);
-        
       });
   };
 
   return (
-    <>
+    <Container>
       <Box
         sx={{
           display: "flex",
@@ -49,8 +62,8 @@ const Countries: React.FC<Props> = ({ countries }) => {
           justifyContent: "space-evenly",
         }}
       >
-        {countries &&
-          countries.map((country:CountriesType, i: number) => {
+        {state &&
+          state.map((country:CountriesType, i: number) => {
             const { name, capital, population, latlng,flag } = country;
             return (
               <Card sx={{ width: "20rem" }} key={i}>
@@ -76,6 +89,7 @@ const Countries: React.FC<Props> = ({ countries }) => {
 
                  
                 </CardContent>
+<ErrorBoundary>
 
                 <CardActions
                   sx={{
@@ -84,48 +98,58 @@ const Countries: React.FC<Props> = ({ countries }) => {
                     alignItems: "center",
                   }}
                 >
-                   {weatherData && capitalName === capital ? (
-                    <Box sx={{display:"grid" , justifyContent:"center", gap:"10px", alignItems:"center"}}>
-                      <Typography gutterBottom variant="h5" component="div">
-                        temperature = {weatherData.temperature}
-                      </Typography>
+                   {weatherData  && (<>
+                   
+                    {
+                      weatherData.map((weather:WeatherData )=>{
+                        if(weather.location.name === capital){
 
-                      {weatherData.weather_icons.map(
-                        (icon: string, i: number) => {
                           return (
-                            <CardMedia
-                              key={i}
-                              component="img"
-                              height="140"
-                              image={icon}
-                              alt="green iguana"
-                            />
-                          );
+                            <Box sx={{display:"grid" , justifyContent:"center", gap:"10px", alignItems:"center"}}>
+                            <Typography gutterBottom variant="h5" component="div">
+                              temperature = {weather.current.temperature}
+                            </Typography>
+      
+                            {weather.current.weather_icons.map(
+                              (icon: string, i: number) => {
+                                return (
+                                  <CardMedia
+                                    key={i}
+                                    component="img"
+                                    height="140"
+                                    image={icon}
+                                    alt="green iguana"
+                                  />
+                                );
+                              }
+                            )}
+                            <Typography variant="body2" color="text.secondary">
+                              wind_speed = {weather.current.wind_speed}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              precip = {weather.current.precip}
+                            </Typography>
+                          </Box>
+                          )
                         }
-                      )}
-
-                      <Typography variant="body2" color="text.secondary">
-                        wind_speed = {weatherData.wind_speed}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        precip = {weatherData.precip}
-                      </Typography>
-                    </Box>
-                  ):<>
-                  <Button
+                      })
+                    }
+                   </>
+                  )}
+        { !isButtonVisible && <Button
                     color="success"
-                    onClick={() => handleWeatherOfCapital(capital)}
+                    onClick={() => {handleWeatherOfCapital(capital)}}
                   >
                     Capital Weather
-                  </Button>
-                  
-                  </>}
+                  </Button>}
+             
                 </CardActions>
+</ErrorBoundary>
               </Card>
             );
           })}
       </Box>
-    </>
+    </Container>
   );
 };
 
