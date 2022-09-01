@@ -21,7 +21,9 @@ const Temperture: React.FC = () => {
       .then((data: any) => {
         setWeatherData(data.current);
         console.log(data, weatherData);
-      });
+      }).catch(err=>{
+        console.log(err);
+      })
   };
   React.useEffect(() => {
     handleWeatherOfCapital(params.capitalName);

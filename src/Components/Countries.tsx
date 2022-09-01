@@ -12,44 +12,48 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { CountriesType } from "../interfaces";
 import Temperture from "./Temperture";
-import ErrorBoundary from '../Errors/ErrorBoundary'
+import ErrorBoundary from "../Errors/ErrorBoundary";
 // interface Props {
 //   countries?: CountriesType[];
 // }
 
 interface WeatherData {
- current: {temperature:number,wind_speed:number,precip:number,weather_icons:[]},
- location:{
-  name:string
- },
-
- 
+  current: {
+    temperature: number;
+    wind_speed: number;
+    precip: number;
+    weather_icons: [];
+  };
+  location: {
+    name: string;
+  };
 }
 
-interface LocationType{
-
+interface LocationType {
   state: CountriesType[];
- 
 }
 
-const Countries: React.FC= () => {
+const Countries: React.FC = () => {
   const [weatherData, setWeatherData] = React.useState<WeatherData[]>([]);
-  const [capitalNames, setcapitalName] = React.useState<string[]>([]);
-  const location = useLocation()
-
-  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false)
-  const {state} = location as LocationType
+  const [capitalNames, setcapitalNames] = React.useState<string[]>([]);
+  const location = useLocation();
+  const [currentButton, setCurrentButton] = React.useState<string>("");
+  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false);
+  const { state } = location as LocationType;
   const handleWeatherOfCapital = (capitalName: string) => {
-    setcapitalName([...capitalNames,capitalName]);
+    console.log({
+      filter: capitalNames.find((names: string) => names === capitalName),
+    });
     fetch(
       `http://api.weatherstack.com/current?access_key=c02a783b96602e7e7f017644d7c704c2&query=${capitalName}`
     )
       .then((res) => res.json())
-      .then((data:WeatherData) => {
-        setIsButtonVisible(true)
-        // const data = {...data.current,{capitalName:capitalName}}
-        setWeatherData([...weatherData,data]);
-        console.log(data, weatherData);
+      .then((data: WeatherData) => {
+        setIsButtonVisible(true);
+        setWeatherData([...weatherData, data]);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
 
@@ -63,8 +67,9 @@ const Countries: React.FC= () => {
         }}
       >
         {state &&
-          state.map((country:CountriesType, i: number) => {
-            const { name, capital, population, latlng,flag } = country;
+          state.map((country: CountriesType, i: number) => {
+            const { name, capital, population, latlng, flag } = country;
+            // console.log({ country });
             return (
               <Card sx={{ width: "20rem" }} key={i}>
                 <CardMedia
@@ -86,65 +91,88 @@ const Countries: React.FC= () => {
                   <Typography variant="body2" color="text.secondary">
                     latlng = {JSON.stringify(latlng)}
                   </Typography>
-
-                 
                 </CardContent>
-<ErrorBoundary>
-
-                <CardActions
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                   {weatherData  && (<>
-                   
-                    {
-                      weatherData.map((weather:WeatherData )=>{
-                        if(weather.location.name === capital){
-
-                          return (
-                            <Box sx={{display:"grid" , justifyContent:"center", gap:"10px", alignItems:"center"}}>
-                            <Typography gutterBottom variant="h5" component="div">
-                              temperature = {weather.current.temperature}
-                            </Typography>
-      
-                            {weather.current.weather_icons.map(
-                              (icon: string, i: number) => {
-                                return (
-                                  <CardMedia
-                                    key={i}
-                                    component="img"
-                                    height="140"
-                                    image={icon}
-                                    alt="green iguana"
-                                  />
-                                );
-                              }
-                            )}
-                            <Typography variant="body2" color="text.secondary">
-                              wind_speed = {weather.current.wind_speed}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              precip = {weather.current.precip}
-                            </Typography>
-                          </Box>
-                          )
-                        }
-                      })
-                    }
-                   </>
-                  )}
-        { !isButtonVisible && <Button
-                    color="success"
-                    onClick={() => {handleWeatherOfCapital(capital)}}
+                <ErrorBoundary>
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
-                    Capital Weather
-                  </Button>}
-             
-                </CardActions>
-</ErrorBoundary>
+                    {weatherData && (
+                      <>
+                        {weatherData.map((weather: WeatherData, i: number) => {
+                          // console.log({ weather });
+                          if (weather && weather.location.name === capital) {
+                            return (
+                              <Box
+                                key={i}
+                                sx={{
+                                  display: "grid",
+                                  justifyContent: "center",
+                                  gap: "10px",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Typography
+                                  gutterBottom
+                                  variant="h5"
+                                  component="div"
+                                >
+                                  temperature = {weather.current.temperature}
+                                </Typography>
+
+                                {weather.current.weather_icons.map(
+                                  (icon: string, i: number) => {
+                                    return (
+                                      <CardMedia
+                                        key={i}
+                                        component="img"
+                                        height="140"
+                                        image={icon}
+                                        alt="green iguana"
+                                      />
+                                    );
+                                  }
+                                )}
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  wind_speed = {weather.current.wind_speed}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  precip = {weather.current.precip}
+                                </Typography>
+                              </Box>
+                            );
+                          }
+                        })}
+                      </>
+                    )}
+                    {isButtonVisible && capital === currentButton ? (
+                      <></>
+                    ) : (
+                      <>
+                        <Button
+                          color="success"
+                          onClick={() => {
+                            console.log(capital);
+                            setCurrentButton(capital);
+                            capitalNames.push(capital);
+                            handleWeatherOfCapital(capital);
+                          }}
+                        >
+                          Capital Weather
+                        </Button>
+                      </>
+                    )}
+                  </CardActions>
+                </ErrorBoundary>
               </Card>
             );
           })}

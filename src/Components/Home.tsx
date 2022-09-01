@@ -11,8 +11,8 @@ const Home: React.FC = () => {
   const [hasDisabled, setHasDisabled] = React.useState<boolean>(true);
   const [countries, setCountries] = React.useState<CountriesType[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<string>('');
-  const navigate = useNavigate()
+  const [error, setError] = React.useState<string>("");
+  const navigate = useNavigate();
   const handleCountryChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -24,21 +24,22 @@ const Home: React.FC = () => {
     setLoading(true);
     fetch(`https://restcountries.com/v2/name/${country}`)
       .then((res) => {
-        //   console.log(res.json());
-        if (res.status=== 200) {
-          setError('');
+        if (res.status === 200) {
+          setError("");
           return res.json();
         } else {
           setError("Not Found");
           setLoading(false);
-          return ;
+          return;
         }
       })
-      .then((data:CountriesType[]) => {
-      console.log(data);
+      .then((data: CountriesType[]) => {
+        console.log(data);
         setCountries(data);
-        navigate("/countries",{state:data})
-      
+        navigate("/countries", { state: data });
+      })
+      .catch((err) => {
+        console.log(err);
       });
 
     setLoading(false);
@@ -53,7 +54,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="App">
-
       <form
         onSubmit={handleSubmit}
         style={{
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
           value={country}
           onChange={handleCountryChange}
         />
-      
+
         <Button
           type="submit"
           variant="contained"
