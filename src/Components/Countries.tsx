@@ -71,7 +71,14 @@ const Countries: React.FC = () => {
             const { name, capital, population, latlng, flag } = country;
             // console.log({ country });
             return (
-              <Card sx={{ width: "20rem" }} key={i}>
+              <Card
+                sx={{
+                  width: "20rem",
+                  mt: 8,
+                  boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                }}
+                key={i}
+              >
                 <CardMedia
                   component="img"
                   height="140"

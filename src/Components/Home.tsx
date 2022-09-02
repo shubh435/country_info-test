@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TextField, Button, CircularProgress, Box } from "@mui/material";
 import Countries from "./Countries";
 import { Container } from "@mui/system";
@@ -18,6 +18,21 @@ const Home: React.FC = () => {
   ) => {
     setCountry(e.target.value);
   };
+
+  const [dataRes, setDataRes] = useState<any[]>([]);
+
+  const fetchApi = async (name: string) => {
+    const api_url = `https://api.openbrewerydb.org/breweries/search?query=${name}`;
+    const res = await axios.get(api_url);
+    //  console.log({res:res.data[0]})
+    setDataRes(res.data);
+  };
+
+  useEffect(() => {
+    fetchApi("Dog");
+  }, []);
+
+  console.log({ dataRes: dataRes });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +106,14 @@ const Home: React.FC = () => {
           <Countries countries={countries} />
         </Container>
       )} */}
+
+
+      {dataRes && 
+        dataRes.map((res:any)=>{
+          console.log(res);
+          return <div>{res.name}</div>
+        })
+      }
     </div>
   );
 };
